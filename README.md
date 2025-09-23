@@ -28,7 +28,6 @@ Feature | Backend AI Mentor | Google AI Studio |
 Folder Upload | ✅ Full support | ❌ Limited support |
 Multiple File Types | ✅ Extensive support | ❌ Limited to text |
 Project Context | ✅ Complete directory structure | ❌ Single file only |
-Bilingual Support | ✅ Seamless switching | ❌ Language dependent |
 
 ### Quick Start
 **Prerequisites:** Node.js
@@ -87,7 +86,6 @@ Backend AI Mentor 是一个智能开发助手，为后端技术（包括 Java、
 文件夹上传 | ✅ 完全支持 | ❌ 支持有限 |
 多种文件类型 | ✅ 广泛支持 | ❌ 仅限文本 |
 项目上下文 | ✅ 完整目录结构 | ❌ 仅单个文件 |
-双语支持 | ✅ 无缝切换 | ❌ 依赖语言 |
 
 ### 快速开始
 **前置要求**：Node.js
