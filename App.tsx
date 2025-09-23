@@ -57,13 +57,31 @@ const App: React.FC = () => {
     setMessages((prevMessages) => [...prevMessages, userMessage]);
 
     try {
-      const finalPrompt = folder 
-        ? `${folder.content}\n\nBased on the folder context above, here is the user's request:\n\n${prompt}`
-        : prompt;
+      let finalPrompt = prompt;
 
+      // Prepend folder context if it exists
+      if (folder) {
+        finalPrompt = `${folder.content}\n\nBased on the folder context above, here is the user's request:\n\n${prompt}`;
+      }
+      
+      // Prepend single text file context if it exists
+      if (attachment?.textContent) {
+        const lang = attachment.name.split('.').pop() || '';
+        const fileContext = `User has uploaded a file named "${attachment.name}". Here is its content:\n\`\`\`${lang}\n${attachment.textContent}\n\`\`\``;
+        finalPrompt = `${fileContext}\n\nBased on the file content above, here is the user's request:\n\n${prompt}`;
+      }
+      
       const messageParts: (string | { inlineData: { data: string; mimeType: string } })[] = [finalPrompt];
-      if (attachment) {
-        messageParts.unshift(fileToPart(attachment.dataUrl));
+      
+      // Add image part if it's an image attachment
+      if (attachment?.dataUrl) {
+        try {
+          messageParts.unshift(fileToPart(attachment.dataUrl));
+        } catch (e) {
+          setError(`Error processing image attachment: ${e instanceof Error ? e.message : 'Unknown error'}`);
+          setIsLoading(false);
+          return;
+        }
       }
       
       const stream = await chatRef.current.sendMessageStream({ message: messageParts });

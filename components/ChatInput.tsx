@@ -16,6 +16,11 @@ const MAX_FILE_SIZE_MB = 4;
 const MAX_TOTAL_FOLDER_SIZE_MB = 10;
 const MAX_INDIVIDUAL_FILE_IN_FOLDER_KB = 100;
 
+// Regular expressions to identify text-based files
+const TEXT_MIME_TYPES = /^(text\/|application\/(json|javascript|xml|x-csharp|x-java-source|x-python-script))/;
+const TEXT_EXTENSIONS = /\.(txt|java|cs|py|js|ts|json|xml|html|css|md|sql|yaml|sh)$/i;
+
+
 // Helper to generate a tree string from a list of file paths
 const generateTree = (paths: string[]): string => {
     const root: any = {};
@@ -85,17 +90,42 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading, 
       setError(`File is too large. Maximum size is ${MAX_FILE_SIZE_MB}MB.`);
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      setFileData({
-        dataUrl: reader.result as string,
-        name: file.name,
-        type: file.type,
-      });
-    };
-    reader.onerror = () => setError('Failed to read file.');
-    reader.readAsDataURL(file);
+
+    const isKnownTextFile = TEXT_MIME_TYPES.test(file.type) || TEXT_EXTENSIONS.test(file.name);
+    const isGenericButLikelyText = (file.type === '' || file.type === 'application/octet-stream') && TEXT_EXTENSIONS.test(file.name);
+
+    // Process as image
+    if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = () => {
+            setFileData({
+                dataUrl: reader.result as string,
+                name: file.name,
+                type: file.type,
+            });
+        };
+        reader.onerror = () => setError('Failed to read file.');
+        reader.readAsDataURL(file);
+    }
+    // Process as text file
+    else if (isKnownTextFile || isGenericButLikelyText) {
+        const reader = new FileReader();
+        reader.onload = () => {
+            setFileData({
+                textContent: reader.result as string,
+                name: file.name,
+                type: file.type || 'text/plain', // Use a sensible default
+            });
+        };
+        reader.onerror = () => setError('Failed to read file.');
+        reader.readAsText(file);
+    }
+    // Unsupported file type
+    else {
+        setError(`Unsupported file type: '${file.type || 'unknown'}'. Please upload an image or a common text/code file.`);
+    }
   };
+
 
   const processFolder = async (files: File[]) => {
     resetAttachments();
@@ -150,22 +180,24 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading, 
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    // Reset input value immediately to prevent browser quirks and potential race conditions.
-    e.target.value = ''; 
     if (file) {
       processFile(file);
     }
+    // Reset input value after processing to allow selecting the same file again.
+    e.target.value = '';
   };
   
   const handleFolderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    // Reset input value immediately.
-    e.target.value = ''; 
+    
     if (files && files.length > 0) {
         // Immediately convert FileList to an array to avoid issues with the reference
         // becoming invalid after the event handler completes.
         processFolder(Array.from(files));
     }
+
+    // Reset input value immediately.
+    e.target.value = ''; 
   };
   
   const handlePaste = useCallback((e: React.ClipboardEvent) => {
@@ -225,7 +257,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading, 
           {hasAttachment && (
             <div className="relative mb-2 p-2 bg-slate-700 rounded-lg max-w-xs">
               {fileData ? (
-                fileData.type.startsWith('image/') ? (
+                fileData.type.startsWith('image/') && fileData.dataUrl ? (
                   <img src={fileData.dataUrl} alt="Preview" className="max-h-24 rounded-md" />
                 ) : (
                   <div className="flex items-center gap-3 p-2">

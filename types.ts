@@ -6,7 +6,8 @@ export enum MessageRole {
 }
 
 export interface Attachment {
-  dataUrl: string;
+  dataUrl?: string; // Optional: for images and other files needing a data URL
+  textContent?: string; // Optional: for text-based file content
   name: string;
   type: string;
 }
