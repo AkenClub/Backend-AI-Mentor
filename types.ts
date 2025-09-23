@@ -5,6 +5,8 @@ export enum MessageRole {
   MODEL = 'model',
 }
 
+export type ModelName = 'gemini-2.5-pro' | 'gemini-2.5-flash';
+
 export interface Attachment {
   dataUrl?: string; // Optional: for images and other files needing a data URL
   textContent?: string; // Optional: for text-based file content
@@ -15,6 +17,7 @@ export interface Attachment {
 export interface Folder {
   name: string;
   fileCount: number;
+  content?: string;
 }
 
 export interface ChatMessage {
@@ -22,6 +25,7 @@ export interface ChatMessage {
   content: string;
   attachment?: Attachment;
   folder?: Folder;
+  model?: ModelName;
 }
 
 

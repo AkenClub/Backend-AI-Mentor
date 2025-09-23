@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
-import { ChatMessage, MessageRole, Language, t } from '../types';
+import { ChatMessage, MessageRole, Language, t, ModelName } from '../types';
 import { UserIcon, BotIcon, CopyIcon, CheckIcon, FileIcon, FolderIcon, ExpandIcon, XIcon, DownloadIcon } from './Icons';
 
 // Add this to inform TypeScript about the global objects from script tags
@@ -460,6 +460,17 @@ const FormattedContent: React.FC<{ content: string; uiLanguage: Language }> = ({
 
 const MemoizedFormattedContent = React.memo(FormattedContent);
 
+const ModelChip: React.FC<{ model: ModelName }> = ({ model }) => {
+  const modelDisplayName = model === 'gemini-2.5-pro' ? 'Gemini 2.5 Pro' : 'Gemini 2.5 Flash';
+  const chipColor = model === 'gemini-2.5-pro' ? 'bg-purple-800/50 text-purple-300' : 'bg-sky-800/50 text-sky-300';
+  
+  return (
+    <div className={`text-xs font-mono px-2 py-0.5 rounded-full inline-block mb-2 ${chipColor}`}>
+      {modelDisplayName}
+    </div>
+  )
+}
+
 export const ChatMessageComponent: React.FC<{ message: ChatMessage, language: Language }> = ({ message, language }) => {
   const isUser = message.role === MessageRole.USER;
   const isModel = message.role === MessageRole.MODEL;
@@ -480,7 +491,26 @@ export const ChatMessageComponent: React.FC<{ message: ChatMessage, language: La
         </div>
       )}
 
-      {isUser ? (
+      {isModel ? ( 
+        <div className="max-w-6xl w-full">
+          {message.model && <ModelChip model={message.model} />}
+          <div className="p-4 rounded-xl shadow-md bg-slate-700 text-slate-200 rounded-bl-none">
+            <MemoizedFormattedContent content={message.content} uiLanguage={language} />
+          </div>
+          {message.content && (
+            <div className="mt-2 flex justify-start">
+              <button
+                onClick={handleCopyContent}
+                className="p-1.5 text-slate-400 hover:text-emerald-400 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                title={t(copied ? 'copied' : 'copy', language)}
+                aria-label={t(copied ? 'copied' : 'copy', language)}
+              >
+                {copied ? <CheckIcon className="w-4 h-4" /> : <CopyIcon className="w-4 h-4" />}
+              </button>
+            </div>
+          )}
+        </div>
+      ) : ( // isUser
         <div className="flex flex-col items-end">
           <div
             className={`p-4 rounded-xl shadow-md max-w-2xl bg-blue-600 text-white rounded-br-none`}
@@ -530,24 +560,6 @@ export const ChatMessageComponent: React.FC<{ message: ChatMessage, language: La
                 >
                     {copied ? <CheckIcon className="w-4 h-4" /> : <CopyIcon className="w-4 h-4" />}
                 </button>
-            </div>
-          )}
-        </div>
-      ) : ( // isModel
-        <div className="max-w-6xl w-full">
-          <div className="p-4 rounded-xl shadow-md bg-slate-700 text-slate-200 rounded-bl-none">
-            <MemoizedFormattedContent content={message.content} uiLanguage={language} />
-          </div>
-          {message.content && (
-            <div className="mt-2 flex justify-start">
-              <button
-                onClick={handleCopyContent}
-                className="p-1.5 text-slate-400 hover:text-emerald-400 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                title={t(copied ? 'copied' : 'copy', language)}
-                aria-label={t(copied ? 'copied' : 'copy', language)}
-              >
-                {copied ? <CheckIcon className="w-4 h-4" /> : <CopyIcon className="w-4 h-4" />}
-              </button>
             </div>
           )}
         </div>

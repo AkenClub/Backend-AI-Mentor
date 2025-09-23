@@ -1,11 +1,11 @@
-import { GoogleGenAI, Chat } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 import { Language } from '../types';
 
 if (!process.env.API_KEY) {
   throw new Error("API_KEY environment variable not set");
 }
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+export const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const SYSTEM_INSTRUCTION_EN = `You are an expert backend development mentor specializing in a wide range of technologies including Java, Spring Boot, C#, .NET, and Python. Your primary goal is to help users learn, understand, and solve problems related to this technology stack. 
 
@@ -45,12 +45,6 @@ const SYSTEM_INSTRUCTION_ZH = `你是一位专业的后端开发导师，精通�
 8.  **保持专注：** 你的专业领域是后端开发。如果被问及无关主题，请温和地将对话引回后端开发。
 9.  **mermaid 图表：** 需要严格遵守遍写语法规则，避免出现语法错误。例如一些需要用双引号包围的语法要特别留意`;
 
-export const startChat = (language: Language): Chat => {
-  const systemInstruction = language === 'zh' ? SYSTEM_INSTRUCTION_ZH : SYSTEM_INSTRUCTION_EN;
-  return ai.chats.create({
-    model: 'gemini-2.5-flash',
-    config: {
-      systemInstruction,
-    },
-  });
+export const getSystemInstruction = (language: Language) => {
+  return language === 'zh' ? SYSTEM_INSTRUCTION_ZH : SYSTEM_INSTRUCTION_EN;
 };
