@@ -547,7 +547,7 @@ export const ChatMessageComponent: React.FC<{ message: ChatMessage, language: La
                     </div>
                 </div>
               )}
-              {message.content && <div className="whitespace-pre-wrap">{message.content}</div>}
+              {message.content && <div className="whitespace-pre-wrap break-all">{message.content}</div>}
              </div>
           </div>
           {message.content && (
