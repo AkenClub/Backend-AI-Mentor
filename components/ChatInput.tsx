@@ -201,7 +201,9 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading, 
   };
   
   const handlePaste = useCallback((e: React.ClipboardEvent) => {
-    const file = Array.from(e.clipboardData.items).find(item => item.kind === 'file')?.getAsFile();
+    // FIX: Refactor to use the more direct `e.clipboardData.files` API,
+    // which avoids TypeScript inference issues with `e.clipboardData.items`.
+    const file = e.clipboardData.files[0];
     if (file) {
         e.preventDefault();
         processFile(file);
