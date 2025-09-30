@@ -32,7 +32,7 @@ export interface ChatMessage {
 // === I18N CONTENT ===
 export const translations = {
   en: {
-    title: "Backend AI Mentor",
+    title: "",
     initialGreeting: "Hello! I'm your Backend AI Mentor. How can I help you with your backend learning journey today? I can assist with Java, Spring Boot, C#, .NET, Python, and more.",
     inputPlaceholder: "Ask about backend topics like Spring Boot, .NET, Django...",
     thinking: "Thinking...",
@@ -42,7 +42,7 @@ export const translations = {
     expand: "Expand",
   },
   zh: {
-    title: "后端 AI 导师",
+    title: "",
     initialGreeting: "你好！我是你的后端AI导师。今天我能如何帮助你的后端学习之旅？我可以协助有关Java、Spring Boot、C#、.NET、Python等技术。",
     inputPlaceholder: "询问有关Spring Boot、.NET、Django等后端主题的问题...",
     thinking: "思考中...",
